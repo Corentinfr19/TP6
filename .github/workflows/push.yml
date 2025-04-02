@@ -1,3 +1,20 @@
+name: Afficher les fichiers et Linter le code
+
+on:
+  push:
+    branches:
+      - mes-dates  # Déclenche l'action uniquement pour la branche mes-dates
+
+jobs:
+  list_files:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v3
+
+      - name: Afficher les fichiers
+        run: ls -R
+
   lint_code:
     runs-on: ubuntu-latest
     steps:
