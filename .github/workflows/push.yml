@@ -1,44 +1,33 @@
-name: Vérification des fichiers et arborescence
+name: Afficher les fichiers et Linter le code
 
 on:
-  pull_request:
+  push:
     branches:
-      - master  # Déclenche l’action uniquement sur une PR vers master
+      - mes-dates  # Déclenche l'action uniquement pour la branche mes-dates
 
 jobs:
-  verify-files:
+  list_files:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout du code
+      - name: Récupérer le dépôt
         uses: actions/checkout@v3
 
-      - name: Vérifier l’arborescence
-        run: |
-          # Vérification de la structure des répertoires
-          if [ ! -d "site" ]; then echo "Erreur: le dossier 'site' n'existe pas."; exit 1; fi
-          if [ ! -d "site/img" ]; then echo "Erreur: le dossier 'site/img' n'existe pas."; exit 1; fi
-          if [ ! -d "site/css" ]; then echo "Erreur: le dossier 'site/css' n'existe pas."; exit 1; fi
-          if [ ! -d "site/js" ]; then echo "Erreur: le dossier 'site/js' n'existe pas."; exit 1; fi
-          if [ ! -d "src" ]; then echo "Erreur: le dossier 'src' n'existe pas."; exit 1; fi
-          echo "Arborescence correcte."
+      - name: Afficher les fichiers
+        run: ls -R
 
-      - name: Vérifier les extensions des fichiers dans 'site'
-        run: |
-          # Vérification des fichiers dans 'site'
-          find site ! -name '*.html' ! -name '*.php' -type f && exit 1 || echo "OK: site"
+  lint_code:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v3
 
-      - name: Vérifier les extensions des fichiers dans 'site/img'
-        run: |
-          # Vérification des fichiers dans 'img'
-          find site/img ! -name '*.png' ! -name '*.jpg' -type f && exit 1 || echo "OK: img"
+      - name: Installer PHP et Composer
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
 
-      - name: Vérifier les extensions des fichiers dans 'site/css'
-        run: |
-          # Vérification des fichiers dans 'css'
-          find site/css ! -name '*.css' -type f && exit 1 || echo "OK: css"
+      - name: Installer les dépendances
+        run: composer install --no-progress --no-suggest --prefer-dist
 
-      - name: Vérifier les extensions des fichiers dans 'site/js'
-        run: |
-          # Vérification des fichiers dans 'js'
-          find site/js ! -name '*.js' -type f && exit 1 || echo "OK: js"
+      - name: Lancer PHP_CodeSniffer (phpcs)
+        run: vendor/bin/phpcs src/ --standard=PSR2
