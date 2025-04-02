@@ -1,0 +1,77 @@
+name: Vérification de l'arborescence et des extensions de fichiers
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  check-arborescence:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v2
+
+      - name: Vérifier l'arborescence
+        run: |
+          echo "Vérification de l'arborescence du projet"
+
+          # Vérification du répertoire 'site'
+          if [ -d "site" ]; then
+            echo "Vérification des fichiers dans 'site'..."
+            for file in site/*; do
+              if [[ ! "$file" =~ \.html$ && ! "$file" =~ \.php$ ]]; then
+                echo "Erreur : Le fichier '$file' dans 'site' n'est ni .html ni .php"
+                exit 1
+              fi
+            done
+          else
+            echo "Erreur : Le répertoire 'site' est manquant."
+            exit 1
+          fi
+
+          # Vérification du répertoire 'img'
+          if [ -d "site/img" ]; then
+            echo "Vérification des fichiers dans 'img'..."
+            for file in site/img/*; do
+              if [[ ! "$file" =~ \.png$ && ! "$file" =~ \.jpg$ ]]; then
+                echo "Erreur : Le fichier '$file' dans 'img' n'est ni .png ni .jpg"
+                exit 1
+              fi
+            done
+          else
+            echo "Erreur : Le répertoire 'img' est manquant."
+            exit 1
+          fi
+
+          # Vérification du répertoire 'css'
+          if [ -d "site/css" ]; then
+            echo "Vérification des fichiers dans 'css'..."
+            for file in site/css/*; do
+              if [[ ! "$file" =~ \.css$ ]]; then
+                echo "Erreur : Le fichier '$file' dans 'css' n'est pas .css"
+                exit 1
+              fi
+            done
+          else
+            echo "Erreur : Le répertoire 'css' est manquant."
+            exit 1
+          fi
+
+          # Vérification du répertoire 'js'
+          if [ -d "site/js" ]; then
+            echo "Vérification des fichiers dans 'js'..."
+            for file in site/js/*; do
+              if [[ ! "$file" =~ \.js$ ]]; then
+                echo "Erreur : Le fichier '$file' dans 'js' n'est pas .js"
+                exit 1
+              fi
+            done
+          else
+            echo "Erreur : Le répertoire 'js' est manquant."
+            exit 1
+          fi
+
+          echo "Arborescence et extensions de fichiers OK !"
