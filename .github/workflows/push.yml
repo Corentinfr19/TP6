@@ -1,13 +1,16 @@
-name: Afficher les fichiers lors d'un push
-
-on: [push]  # Exécute l'action à chaque push
-
-jobs:
-  list_files:
+  lint_code:
     runs-on: ubuntu-latest
     steps:
       - name: Récupérer le dépôt
-        uses: actions/checkout@v3  # Clone le repo dans l'environnement GitHub Actions
+        uses: actions/checkout@v3
 
-      - name: Afficher les fichiers
-        run: ls -R  # Liste tous les fichiers et dossiers récursivement
+      - name: Installer PHP et Composer
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+
+      - name: Installer les dépendances
+        run: composer install --no-progress --no-suggest --prefer-dist
+
+      - name: Lancer PHP_CodeSniffer (phpcs)
+        run: vendor/bin/phpcs src/ --standard=PSR2
